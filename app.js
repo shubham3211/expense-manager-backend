@@ -5,7 +5,7 @@ const cookieSession = require('cookie-session');
 const passport = require('passport');
 const cors = require('cors');
 const keys = require('./config/keys');
-mongoose.connect('mongodb://shubham:shubham123@ds018168.mlab.com:18168/nn-outh-test', () => {
+mongoose.connect(keys.mongoUrl, () => {
   console.log('connected to mongodb');
 })
 
