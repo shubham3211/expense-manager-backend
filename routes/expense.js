@@ -6,7 +6,6 @@ const moment = require('moment');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 function expenseThisMonth(userId, timeFrame) {
-  console.log(timeFrame); 
   return expense.find({
     date: {
       $gte: moment().startOf(timeFrame).toDate(),
@@ -23,7 +22,7 @@ route.get('/' , (req, res) => {
 });
 
 route.post('/', (req, res) => {
-  req.body.date = moment(req.body.date, 'DD-MM-YYYY').toDate();
+  req.body.date = moment(moment(req.body.date).format('DD-MM-YYYY'), 'DD-MM-YYYY').toDate();
   expenseDbFunctions.addCollections(req.body)
     .then((data) => res.send(data))
     .catch((e) => console.log(e))
@@ -31,7 +30,7 @@ route.post('/', (req, res) => {
 
 route.get('/duration/:timePeriod' , (req, res) => {
   console.log(req.user);
-  if(!['day', 'month', 'year'].includes(req.params.timePeriod)){
+  if(!['week', 'month', 'year'].includes(req.params.timePeriod)){
     res.status(422).send('Check the params');
   }else{
     expenseThisMonth(req.user._id, req.params.timePeriod)
