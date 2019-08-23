@@ -3,7 +3,6 @@ const expense = require('../database/models/expense');
 const dbApi = require('../database/dbApi');
 const expenseDbFunctions = new dbApi(expense);
 const moment = require('moment');
-const ObjectId = require('mongoose').Types.ObjectId;
 
 function expenseThisMonth(userId, timeFrame) {
   return expense.find({
@@ -55,8 +54,16 @@ route.get('/user/:_id', (req, res)=> {
 })
 
 route.put('/:_id', (req, res) => {
+  console.log(req.params)
   expenseDbFunctions.updateOneRow({_id: req.params}, req.body)
     .then((data) => res.send(data))
     .catch((e) => console.log(e));
 })
+
+route.delete('/:_id', (req, res) => {
+  expense.findByIdAndDelete(req.params._id)
+    .then((data) => res.send(data))
+    .catch((data) => res.send(data))
+})
+
 module.exports = route;
