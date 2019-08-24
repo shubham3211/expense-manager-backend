@@ -3,6 +3,7 @@ const expense = require('../database/models/expense');
 const dbApi = require('../database/dbApi');
 const expenseDbFunctions = new dbApi(expense);
 const moment = require('moment');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 function expenseThisMonth(userId, timeFrame) {
   return expense.find({
@@ -15,7 +16,7 @@ function expenseThisMonth(userId, timeFrame) {
 }
 
 route.get('/' , (req, res) => {
-  expenseDbFunctions.getData()
+  expense.find({})
     .then((data) => res.send(data))
     .catch((e) => console.log(e));
 });
@@ -58,6 +59,15 @@ route.put('/:_id', (req, res) => {
   expenseDbFunctions.updateOneRow({_id: req.params}, req.body)
     .then((data) => res.send(data))
     .catch((e) => console.log(e));
+})
+
+route.get('/category', (req, res) => {
+  expense.aggregate([
+    { $match: { user: ObjectId(req.user._id) }},
+    { $group: { _id: '$category', count: { $sum: 1} }}
+  ]).then((data) => {
+    res.send(data);
+  }).catch((err) => res.send(new Error(err)))
 })
 
 route.delete('/:_id', (req, res) => {
