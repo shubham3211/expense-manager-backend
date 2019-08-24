@@ -29,13 +29,11 @@ route.post('/', (req, res) => {
 })
 
 route.get('/duration/:timePeriod' , (req, res) => {
-  console.log(req.user);
   if(!['week', 'month', 'year'].includes(req.params.timePeriod)){
     res.status(422).send('Check the params');
   }else{
     expenseThisMonth(req.user._id, req.params.timePeriod)
     .then((data) => {
-      console.log(data);
       res.send(data)
     })
     .catch((err) => res.send(new Error(err)))
@@ -61,10 +59,20 @@ route.put('/:_id', (req, res) => {
     .catch((e) => console.log(e));
 })
 
-route.get('/category', (req, res) => {
+route.get('/category/:timePeriod', (req, res) => {
+  console.log('time frame', req.params.timePeriod)
   expense.aggregate([
-    { $match: { user: ObjectId(req.user._id) }},
-    { $group: { _id: '$category', count: { $sum: 1} }}
+    { $match: { 
+        user: ObjectId(req.user._id),
+        date: {
+          $gte: moment().startOf(req.params.timePeriod).toDate(),
+          $lte: moment().startOf(req.params.timePeriod).endOf(req.params.timePeriod).toDate()
+        }
+      }
+    },
+    { 
+      $group: { _id: '$category', count: { $sum: 1}}
+    }
   ]).then((data) => {
     res.send(data);
   }).catch((err) => res.send(new Error(err)))
